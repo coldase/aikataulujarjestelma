@@ -57,16 +57,19 @@ class AikatauluJarjestelma:
 
 
   def check_credentials(self, uname, pwd):
+    """ Checks if username and passoword found in users """
     for user in self.users:
       if user.username == uname and user.password == pwd:
         return True
     return False
 
   def save_calendar(self):
+    """ Saves calendar data to ./data.pickle """
     with open("data.pickle", "wb") as f:
       pickle.dump(self.calendar, f)
 
   def load_calendar(self):
+    """ Loads calendar data from ./data.pickle """
     try:
       with open("data.pickle", "rb") as f:
         return pickle.load(f)
@@ -74,10 +77,12 @@ class AikatauluJarjestelma:
       return False
 
   def save_users(self):
+    """ Saves user data to ./users.pickle """
     with open("users.pickle", "wb") as f:
       pickle.dump(self.users, f)
 
   def load_users(self):
+    """ Loads user data from ./users.pickle """
     try:
       with open("users.pickle", "rb") as f:
         return pickle.load(f)
@@ -85,6 +90,7 @@ class AikatauluJarjestelma:
       return False
 
   def run(self):
+    """ Main loop for the application """
     self.clear()
     self.save_calendar()
     while self.running:
@@ -120,7 +126,7 @@ class AikatauluJarjestelma:
           self.running = False
           
       else:
-          print("\nChoose:\n(1) Print Week\n(2) Print Day\n(3) Add tasks\n(4) Remove task\n(*) Logout\n")
+          print("\nChoose:\n(1) Print Week\n(2) Print Day\n(3) Add tasks\n(4) Remove task\n(5) Reset calendar\n(*) Logout\n")
           ask = input("-> ")
           if ask == "1":
             self.clear()
@@ -150,6 +156,11 @@ class AikatauluJarjestelma:
           elif ask == "4":
             self.clear()
             print("removing task in progress\n")
+          elif ask == "5":
+            self.clear()
+            self.calendar = self.make_empty_calendar()
+            print("Calendar reseted!")
+            self.save_calendar()
           else:
             self.clear()
             self.loggedin = False
