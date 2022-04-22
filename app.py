@@ -89,11 +89,12 @@ class AikatauluJarjestelma:
     self.save_calendar()
     while self.running:
       if not self.loggedin:
-        print("Choose:\n\n(1) Login\n(2) Create new user\n(*) Quit\n")
+        print("Aikataulujarjestelma 1.0\n")
+        print("Choose:\n(1) Login\n(2) Create new user\n(*) Quit\n")
         ask = input("-> ")
         if ask == "1":
           self.clear()
-          print("Login:\n\n")
+          print("Login:\n")
           ask_name = input("Username: ")
           ask_pwd = input("Password: ")
           if self.check_credentials(ask_name, ask_pwd):
@@ -119,20 +120,36 @@ class AikatauluJarjestelma:
           self.running = False
           
       else:
-          print("Choose:\n\n(1) Print Week\n(2) Print Day\n(3) Add tasks\n(4) Remove task\n(*) Logout\n")
+          print("\nChoose:\n(1) Print Week\n(2) Print Day\n(3) Add tasks\n(4) Remove task\n(*) Logout\n")
           ask = input("-> ")
           if ask == "1":
             self.clear()
-            print("printing week\n")
+            self.print_whole_calendar()
           elif ask == "2":
             self.clear()
-            print("printing day\n")
+            print("Give a day number (1-7):\n")
+            ask = input("->  ")
+            try:
+              self.clear()
+              self.print_day(int(ask))
+            except:
+              self.clear()
+              print("Invalid input")
           elif ask == "3":
             self.clear()
-            print("adding task\n")
+            print("Add new task (day, starttime, endtime, user, task)\n")
+            d = input("Day: ")
+            s = input("Start time: ")
+            e = input("End time: ")
+            u = input("User: ")
+            t = input("Task: ")
+            self.clear()
+            self.add_task(int(d), int(s), int(e), u, t)
+            print("Task created!")
+
           elif ask == "4":
             self.clear()
-            print("removing task\n")
+            print("removing task in progress\n")
           else:
             self.clear()
             self.loggedin = False
