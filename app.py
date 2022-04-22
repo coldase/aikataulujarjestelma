@@ -1,8 +1,15 @@
+import pickle
+
 class AikatauluJarjestelma:
   def __init__(self):
-    self.calendar = {day + 1: {hour: "" for hour in range(8, 25)} for day in range(7)}
     self.running = True
-    self.users = []
+    self.calendar = self.load_calendar() if self.load_calendar() else self.make_empty_calendar()
+    self.users = self.load_users() if self.load_users() else []
+    self.loggedin = False
+
+  def make_empty_calendar(self):
+    """ Makes and empty calendar template """
+    return {day + 1: {hour: {} for hour in range(8, 25)} for day in range(7)}
 
   def print_whole_calendar(self):
     """ Prints the whole week """
@@ -12,28 +19,40 @@ class AikatauluJarjestelma:
 
   def print_day(self, day):
     """ Prints the hours of given day """
-    print(self.calendar[day])
+    print(f"\nDay: {day}\n")
+    for hour, task in self.calendar[day].items():
+      print(f"Klo: {hour} - {task}")
 
 
   def check_if_assigned(self, day, hour):
     """ checks if the hour in a day is already taken """
-    return self.calendar[day][hour] != ""
+    return self.calendar[day][hour] != {}
 
 
-  def add_task(self, day, starts_at, ends_at, task):
-    """ Adds new task to calendar """
+  def add_task(self, day, starts_at, ends_at, user, task):
+    """ 
+          Adds new task to calendar 
+          *************************
+          day: 1-7
+          starts_at: 8-24
+          ends_at: 8-24
+          user: Name of the user whos going to complete the task
+          task: Name of task
+    
+    """
     myday = self.calendar[day]
     for x in range(starts_at, ends_at):
       if self.check_if_assigned(day, x):
         print(f"Klo {x} already has: {myday[x]}")
       else:
-        myday[x] = task
+        myday[x] = {user: task}
     self.calendar[day] = myday
+    self.save_calendar()
     
 
   def clear(self):
     """ clears terminal """
-    for x in range(80):
+    for _ in range(80):
       print("")
 
 
@@ -43,35 +62,81 @@ class AikatauluJarjestelma:
         return True
     return False
 
+  def save_calendar(self):
+    with open("data.pickle", "wb") as f:
+      pickle.dump(self.calendar, f)
+
+  def load_calendar(self):
+    try:
+      with open("data.pickle", "rb") as f:
+        return pickle.load(f)
+    except:
+      return False
+
+  def save_users(self):
+    with open("users.pickle", "wb") as f:
+      pickle.dump(self.users, f)
+
+  def load_users(self):
+    try:
+      with open("users.pickle", "rb") as f:
+        return pickle.load(f)
+    except:
+      return False
+
   def run(self):
     self.clear()
-
+    self.save_calendar()
     while self.running:
-      print("Choose:\n\n(1) Login\n(2) Create new user\n(*) Quit\n")
-      ask = input("-> ")
-      if ask == "1":
-        self.clear()
-        print("Login:\n\n")
-        ask_name = input("Username: ")
-        ask_pwd = input("Password: ")
-        if self.check_credentials(ask_name, ask_pwd):
+      if not self.loggedin:
+        print("Choose:\n\n(1) Login\n(2) Create new user\n(*) Quit\n")
+        ask = input("-> ")
+        if ask == "1":
           self.clear()
-          print("Logged in\n")
-        else:
+          print("Login:\n\n")
+          ask_name = input("Username: ")
+          ask_pwd = input("Password: ")
+          if self.check_credentials(ask_name, ask_pwd):
+            self.clear()
+            print(f"Logged in as {ask_name}\n")
+            self.loggedin = True
+          else:
+            self.clear()
+            print("User not found\n")
+            continue
+
+        elif ask == "2":
           self.clear()
-          print("User not found\n")
+          print("Create new user:\n\n")
+          ask_name = input("Username: ")
+          ask_pwd = input("Password: ")
+          self.users.append(User(ask_name, ask_pwd))
+          self.clear()
+          print(f"User {ask_name} created!\n")
+          self.save_users()
           continue
-      elif ask == "2":
-        self.clear()
-        print("Create new user:\n\n")
-        ask_name = input("Username: ")
-        ask_pwd = input("Password: ")
-        self.users.append(User(ask_name, ask_pwd))
-        self.clear()
-        print(f"User {ask_name} created!\n")
-        continue
+        else:
+          self.running = False
+          
       else:
-        self.running = False
+          print("Choose:\n\n(1) Print Week\n(2) Print Day\n(3) Add tasks\n(4) Remove task\n(*) Logout\n")
+          ask = input("-> ")
+          if ask == "1":
+            self.clear()
+            print("printing week\n")
+          elif ask == "2":
+            self.clear()
+            print("printing day\n")
+          elif ask == "3":
+            self.clear()
+            print("adding task\n")
+          elif ask == "4":
+            self.clear()
+            print("removing task\n")
+          else:
+            self.clear()
+            self.loggedin = False
+            continue
 
 class User:
   def __init__(self, username, password):
@@ -80,7 +145,6 @@ class User:
 
 app = AikatauluJarjestelma()
 
-app.print_day(2)
-app.add_task(2, 10, 12, "Imuroi")
-app.add_task(2, 11, 12, "Lenkille")
-app.print_day(2)
+if __name__ == "__main__":
+  app.run()
+  
