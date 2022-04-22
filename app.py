@@ -16,14 +16,16 @@ class AikatauluJarjestelma:
   def print_whole_calendar(self):
     """ Prints the whole week """
     for day, hours in self.calendar.items():
-      print(day, hours)
+      print(f"\nDay: {day}")
+      for hour, task in hours.items():
+        print(f"\tKlo: {hour} - {task}")
 
 
   def print_day(self, day):
     """ Prints the hours of given day """
-    print(f"\nDay: {day}\n")
+    print(f"\nDay: {day}")
     for hour, task in self.calendar[day].items():
-      print(f"Klo: {hour} - {task}")
+      print(f"\tKlo: {hour} - {task}")
 
 
   def check_if_assigned(self, day, hour):
@@ -213,4 +215,5 @@ app = AikatauluJarjestelma()
 
 if __name__ == "__main__":
   app.run()
+  # app.print_whole_calendar()
   
