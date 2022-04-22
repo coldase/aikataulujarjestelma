@@ -7,9 +7,11 @@ class AikatauluJarjestelma:
     self.users = self.load_users() if self.load_users() else []
     self.loggedin = False
 
+
   def make_empty_calendar(self):
     """ Makes and empty calendar template """
     return {day + 1: {hour: {} for hour in range(8, 25)} for day in range(7)}
+
 
   def print_whole_calendar(self):
     """ Prints the whole week """
@@ -63,10 +65,12 @@ class AikatauluJarjestelma:
         return True
     return False
 
+
   def save_calendar(self):
     """ Saves calendar data to ./data.pickle """
     with open("data.pickle", "wb") as f:
       pickle.dump(self.calendar, f)
+
 
   def load_calendar(self):
     """ Loads calendar data from ./data.pickle """
@@ -76,10 +80,12 @@ class AikatauluJarjestelma:
     except:
       return False
 
+
   def save_users(self):
     """ Saves user data to ./users.pickle """
     with open("users.pickle", "wb") as f:
       pickle.dump(self.users, f)
+
 
   def load_users(self):
     """ Loads user data from ./users.pickle """
@@ -88,6 +94,25 @@ class AikatauluJarjestelma:
         return pickle.load(f)
     except:
       return False
+
+
+  def check_errors(self, value, type):
+    """ Check if inputs are valid when adding new tasks """
+    err = []
+    if type == "day":
+      try:
+        if int(value) not in range(1,8):
+          err.append(f'{value} is NOT valid day, try (1-7)')
+      except:
+        err.append(f'{value} is NOT valid day, try (1-7)')
+    if type == "time":
+      try:
+        if int(value) not in range(8, 25):
+          err.append(f'{value} is NOT valid start time, try (8-24)')
+      except:
+        err.append(f'{value} is NOT valid start time, try (8-24)')
+    return err
+
 
   def run(self):
     """ Main loop for the application """
@@ -144,15 +169,27 @@ class AikatauluJarjestelma:
           elif ask == "3":
             self.clear()
             print("Add new task (day, starttime, endtime, user, task)\n")
-            d = input("Day: ")
-            s = input("Start time: ")
-            e = input("End time: ")
+            d = input("Day (1-7): ")
+            s = input("Start time (8-24): ")
+            e = input("End time (8-24): ")
             u = input("User: ")
             t = input("Task: ")
-            self.clear()
-            self.add_task(int(d), int(s), int(e), u, t)
-            print("Task created!")
 
+            errors = []          
+            errors.extend(self.check_errors(d, "day"))
+            errors.extend(self.check_errors(s, "time"))
+            errors.extend(self.check_errors(e, "time"))
+            
+            if not errors:
+              self.clear()
+              self.add_task(int(d), int(s), int(e), u, t)
+              print("Task created!")
+            else:
+              self.clear()
+              print("Couldn't create task\n")
+              print("ERRORS:")
+              for e in errors:
+                print(f"\t{e}")
           elif ask == "4":
             self.clear()
             print("removing task in progress\n")
@@ -165,6 +202,7 @@ class AikatauluJarjestelma:
             self.clear()
             self.loggedin = False
             continue
+
 
 class User:
   def __init__(self, username, password):
