@@ -16,16 +16,20 @@ class AikatauluJarjestelma:
   def print_whole_calendar(self):
     """ Prints the whole week """
     for day, hours in self.calendar.items():
-      print(f"\nDay: {day}")
+      print(f"\nDay: {day}\n******")
       for hour, task in hours.items():
-        print(f"\tKlo: {hour} - {task}")
+        print(f"Klo: {hour}")
+        for n, tn in task.items():
+          print(f"\t{n} - {tn}")
 
 
   def print_day(self, day):
     """ Prints the hours of given day """
-    print(f"\nDay: {day}")
+    print(f"\nDay: {day}\n******")
     for hour, task in self.calendar[day].items():
-      print(f"\tKlo: {hour} - {task}")
+      print(f"Klo: {hour}")
+      for n, tn in task.items():
+        print(f"\t{n} - {tn}")
 
 
   def check_if_assigned(self, day, hour):
@@ -35,19 +39,18 @@ class AikatauluJarjestelma:
 
   def add_task(self, day, starts_at, ends_at, user, task):
     """ 
-          Adds new task to calendar 
-          *************************
-          day: 1-7
-          starts_at: 8-24
-          ends_at: 8-24
-          user: Name of the user whos going to complete the task
-          task: Name of task
+      Adds new task to calendar 
+        day: 1-7
+        starts_at: 8-24
+        ends_at: 8-24
+        user: Name of the user whos going to complete the task
+        task: Name of task
     
     """
     myday = self.calendar[day]
     for x in range(starts_at, ends_at):
       if self.check_if_assigned(day, x):
-        print(f"Klo {x} already has: {myday[x]}")
+         myday[x].update({user: task})
       else:
         myday[x] = {user: task}
     self.calendar[day] = myday
