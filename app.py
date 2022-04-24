@@ -50,13 +50,21 @@ class AikatauluJarjestelma:
     """
     myday = self.calendar[day]
     myid = int(time()*1e6)
-    
+
+    # Check if user already has tasks in given hours
+    for x in range(starts_at, ends_at):
+      for name in myday[x]:
+        if name == user:
+          print("User already has tasks in given time.\nTasks not created!")
+          return
+
     for x in range(starts_at, ends_at):
       if self.check_if_assigned(day, x):
          myday[x].update({user: {"id": myid, "task": task}})
       else:
         myday[x] = {user: {"id": myid, "task": task}}
     self.calendar[day] = myday
+    print("Task created!")
     self.save_calendar()
 
 
@@ -202,7 +210,6 @@ class AikatauluJarjestelma:
             if not errors:
               self.clear()
               self.add_task(int(d), int(s), int(e), u, t)
-              print("Task created!")
             else:
               self.clear()
               print("Couldn't create task\n")
@@ -256,4 +263,5 @@ app = AikatauluJarjestelma()
 
 if __name__ == "__main__":
   app.run()
+  # app.add_task(2, 8, 12, "coldase", "minna task")
   
