@@ -1,4 +1,5 @@
 import pickle
+from time import time
 
 class AikatauluJarjestelma:
   def __init__(self):
@@ -9,7 +10,7 @@ class AikatauluJarjestelma:
 
 
   def make_empty_calendar(self):
-    """ Makes and empty calendar template """
+    """ Makes an empty calendar template """
     return {day + 1: {hour: {} for hour in range(8, 25)} for day in range(7)}
 
 
@@ -20,7 +21,7 @@ class AikatauluJarjestelma:
       for hour, task in hours.items():
         print(f"Klo: {hour}")
         for n, tn in task.items():
-          print(f"\t{n} - {tn}")
+          print(f"\tId: {tn['id']}\n\tName: {n}\n\tTask: {tn['task']}\n")
 
 
   def print_day(self, day):
@@ -29,7 +30,7 @@ class AikatauluJarjestelma:
     for hour, task in self.calendar[day].items():
       print(f"Klo: {hour}")
       for n, tn in task.items():
-        print(f"\t{n} - {tn}")
+        print(f"\tId: {tn['id']}\n\tName: {n}\n\tTask: {tn['task']}\n")
 
 
   def check_if_assigned(self, day, hour):
@@ -48,14 +49,27 @@ class AikatauluJarjestelma:
     
     """
     myday = self.calendar[day]
+    myid = int(time()*1e6)
+    
     for x in range(starts_at, ends_at):
       if self.check_if_assigned(day, x):
-         myday[x].update({user: task})
+         myday[x].update({user: {"id": myid, "task": task}})
       else:
-        myday[x] = {user: task}
+        myday[x] = {user: {"id": myid, "task": task}}
     self.calendar[day] = myday
     self.save_calendar()
-    
+
+
+  def remove_task(self, myid):
+    """ Removes all tasks with given id"""
+    for daynumber, daydata in self.calendar.items():
+      for hours, hoursdata in daydata.items():
+        temp = {}
+        for name, task in hoursdata.items():
+          if int(task['id']) != int(myid):
+            temp.update({name: task})
+        self.calendar[daynumber][hours] = temp
+  
 
   def clear(self):
     """ clears terminal """
@@ -135,7 +149,7 @@ class AikatauluJarjestelma:
           ask_pwd = input("Password: ")
           if self.check_credentials(ask_name, ask_pwd):
             self.clear()
-            print(f"Logged in as {ask_name}\n")
+            print(f"Logged in as {ask_name}")
             self.loggedin = True
           else:
             self.clear()
@@ -156,7 +170,7 @@ class AikatauluJarjestelma:
           self.running = False
           
       else:
-          print("\nChoose:\n(1) Print Week\n(2) Print Day\n(3) Add tasks\n(4) Remove task\n(5) Reset calendar\n(*) Logout\n")
+          print("\nChoose:\n(1) Print Week\n(2) Print Day\n(3) Add tasks\n(4) Remove tasks with id\n(5) Reset calendar\n(*) Logout\n")
           ask = input("-> ")
           if ask == "1":
             self.clear()
@@ -197,12 +211,36 @@ class AikatauluJarjestelma:
                 print(f"\t{e}")
           elif ask == "4":
             self.clear()
-            print("removing task in progress\n")
+            id_inp = input("Give task id: ")
+            self.clear()
+            print(f"Removing tasks with id {id_inp}...\n\nAre you sure? (y/n)")
+            inp = input("-> ")
+            self.clear()
+            if inp == "y":
+              try:
+                self.remove_task(id_inp)
+                print(f"Tasks with {id_inp} removed")
+                self.save_calendar()
+              except:
+                print("Coudnt remove tasks or id not found")
+            else:
+              self.clear()
+              continue
           elif ask == "5":
             self.clear()
-            self.calendar = self.make_empty_calendar()
-            print("Calendar reseted!")
-            self.save_calendar()
+            print("This will remove ALL tasks from calendar\n\nAre you sure? (y/n)")
+            inp = input("-> ")
+            self.clear()
+            if inp == "y":
+              try:
+                self.calendar = self.make_empty_calendar()
+                print("Calendar reseted!")
+                self.save_calendar()
+              except:
+                print("Coudn't reset the calendar")
+            else:
+              self.clear()
+              continue
           else:
             self.clear()
             self.loggedin = False
@@ -218,5 +256,4 @@ app = AikatauluJarjestelma()
 
 if __name__ == "__main__":
   app.run()
-  # app.print_whole_calendar()
   
