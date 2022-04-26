@@ -262,6 +262,4 @@ class User:
 app = AikatauluJarjestelma()
 
 if __name__ == "__main__":
-  app.run()
-  # app.add_task(2, 8, 12, "coldase", "minna task")
-  
+  app.run()  
